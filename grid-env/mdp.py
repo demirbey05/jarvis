@@ -77,3 +77,46 @@ class MDP:
             return self.transition_model[mask][:, 2:]  # Returns columns [next_state, reward, probability]
         
         return torch.empty(0, 3)  # Return empty tensor if no transitions found
+    def get_next_state_reward(self, current_state: Union[int, str], 
+                       action: Union[int, str]) -> torch.Tensor:
+        '''
+        Get all possible next states and their probabilities for a given state-action pair.
+        
+        Args:
+            current_state: current state
+            action: action taken
+        Returns:
+            next_states_info: tensor containing [next_state, reward, probability]
+        '''
+        # Find all transitions for the given state-action pair
+        mask = torch.logical_and(
+            self.transition_model[:, 0] == current_state,
+            self.transition_model[:, 1] == action
+        )
+        
+        # Return the next states, rewards, and probabilities
+        if torch.any(mask):
+            return self.transition_model[mask][:, 2:]
+        
+
+        return torch.empty(0)  # Return empty tensor if no transitions found
+    
+    def value_visualization(self, value_function, iteration):
+        number_of_states = len(self.states)
+        rows = int(number_of_states ** 0.5)  # Assuming square grid
+        cols = rows
+        
+        print(f"\nValue function after {iteration} iterations.")
+        print('-' * (cols * 8 + 1))
+        
+        for r in range(rows):
+            row_values = []
+            for c in range(cols):
+                # Convert grid position to state index
+                state_idx = r * cols + c
+                value = value_function[state_idx]
+                row_values.append(f'{value:6.2f}')
+            print('| ' + ' | '.join(row_values) + ' |')
+            print('-' * (cols * 8 + 1))
+        
+        
