@@ -1,6 +1,9 @@
 import torch
 from typing import List, Union
 
+
+direction_map = {1:" ↑ ",2:" ↓ ",3:" ← ", 4:" → " }
+
 class MDP:
     def __init__(
             self,
@@ -119,4 +122,26 @@ class MDP:
             print('| ' + ' | '.join(row_values) + ' |')
             print('-' * (cols * 8 + 1))
         
-        
+    def policy_visualization(self, policy, iteration):
+        number_of_states = len(self.states)
+        rows = int(number_of_states ** 0.5)
+        cols = rows
+
+        print(f"\nPolicy after {iteration} iterations.")
+        print('-' * (cols * 8 + 1))
+
+        for r in range(rows):
+            row_values = []
+            for c in range(cols):
+                state_idx = r * cols + c
+                action_probs = {}
+                for action in self.actions:
+                    action_probs[action] = policy(state_idx, action)
+                ## Get actions with non-zero probabilities
+                actions = [a for a, p in action_probs.items() if p > 0]
+                ## Get index and decode with direction map
+                actions = [direction_map[i] for i in actions]
+                row_values.append(''.join(actions))
+
+            print('| ' + ' | '.join(row_values) + ' |')
+            print('-' * (cols * 8 + 1))
