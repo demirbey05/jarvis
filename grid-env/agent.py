@@ -51,40 +51,46 @@ class Agent:
         return value_function
     
 
-    def policy_improvement(self,environment:MDP,value_function:dict,verbose:bool=False):
+    def policy_improvement(self,environment:MDP,value_function:dict,verbose:bool=False) -> dict:
         new_policy = {}
-        iteration = 0
-        stable = True
-        while stable:
-            for state in environment.states:
-                max_val = float('-inf')
-                max_act = None
-                for action in environment.actions:
-                    next_info = environment.get_next_state_reward(state,action)
-                    if next_info.size().numel() == 0:
-                        continue
-                    val = 0
-                    for i in range(next_info.size()[0]):
-                        next_state = next_info[i,0].item()
-                        reward = next_info[i,1].item()
-                        prob = next_info[i,2].item()
-                        val += prob * (reward + self.gamma * value_function[next_state])
-                    if val > max_val:
-                        max_val = val
-                        max_act = action
+
+        for state in environment.states:
+            max_val = float('-inf')
+            max_act = None
+            for action in environment.actions:
+                next_info = environment.get_next_state_reward(state,action)
+                if next_info.size().numel() == 0:
+                    continue
+                val = 0
+                for i in range(next_info.size()[0]):
+                    next_state = next_info[i,0].item()
+                    reward = next_info[i,1].item()
+                    prob = next_info[i,2].item()
+                    val += prob * (reward + self.gamma * value_function[next_state])
+                if val > max_val:
+                    max_val = val
+                    max_act = action
                 
-                new_policy[state] = max_act
+            new_policy[state] = max_act
             # If actions determined is certain for previous policy, then break
-            for k,v in new_policy.items():
-                if self.policy(k,v) != 1:
-                    stable = False
-            iteration += 1
+       
 
         def new_policy_func(state,action):
             return 1 if action == new_policy[state] else 0
         self.policy = new_policy_func
         if verbose:
             print('Policy Improvement-- New Policy')
-            environment.policy_visualization(new_policy_func,iteration=iteration)
+            environment.policy_visualization(new_policy_func,iteration=1)
         return new_policy
-        
+    
+    def policy_iteration(self,omega:float,environment:MDP,verbose:bool=False):
+
+        policy_stable = True
+
+        while policy_stable:
+            value_function = self.policy_evaluation(omega,environment,False)
+            new_policy = self.policy_improvement(environment,value_function,False)
+            for k,v in new_policy.items():
+                if self.policy(k,v) != 1:
+                    policy_stable = False
+            
