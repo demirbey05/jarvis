@@ -1,3 +1,6 @@
-grid-env/.ipynb_checkpoints
-grid-env/.virtual_documents
-grid-env/__pycache__
+grid/.ipynb_checkpoints
+grid/.virtual_documents
+grid/__pycache__
+robot/__pycache__/
+robot/.ipynb_checkpoints
+
