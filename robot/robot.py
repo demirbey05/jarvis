@@ -34,7 +34,6 @@ class RecycleEnv(Env):
         self.state = "high"
         self.time = 0
         self.sum = 0
-        print("Environment reset: Current state is High")
         return self.state, {}
 
     def step(self, a):
