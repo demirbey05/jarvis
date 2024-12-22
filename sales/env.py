@@ -25,6 +25,8 @@ class SalesEnv:
 
         # Get demand for action 
         demand = self.get_demand(action)
+        if demand == 0 :
+            print("Demand is zero")
 
         # Calculate reward
         if self.state[1] == 1:
